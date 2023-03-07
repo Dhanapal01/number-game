@@ -1,7 +1,8 @@
+// ignore_for_file: prefer_typing_uninitialized_variables
+
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,7 +33,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int numberoftries = 0;
-  int numberoftimes = 5;
+  int numberoftimes = 10;
   final guessnumber = TextEditingController();
   static Random ran = Random();
   int randomnumber = ran.nextInt(100) + 1;
@@ -45,55 +46,59 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(children: <Widget>[
-          // ignore: prefer_const_constructors
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: const Text(
-              'I\'m thinking of number bt 1 to 100.you only have 5 tries.',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18.0,
-                  color: Colors.grey),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            // ignore: avoid_unnecessary_containers
-            child: Container(
-              child: const Padding(
-                padding: EdgeInsets.all(10),
-                child: Text(
-                  'can you guess it',
-                  style: TextStyle(fontSize: 18.0),
+      body: Builder(
+        builder: (context) {
+          return Center(
+            child: Column(children: <Widget>[
+              // ignore: prefer_const_constructors
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: const Text(
+                  'I\'m thinking of number bt 1 to 100.you only have 5 tries.',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                      color: Colors.grey),
                 ),
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-                textAlign: TextAlign.left,
-                decoration: InputDecoration(
-                    enabledBorder: uiborder,
-                    focusedBorder: uiborder,
-                    hintText: 'please enter a number'),
-                keyboardType: TextInputType.number,
-                controller: guessnumber),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: ElevatedButton(
-              onPressed: guess,
-              // ignore: prefer_const_constructors
-              child: Text(
-                "guess",
-                style: const TextStyle(fontSize: 18),
+              Align(
+                alignment: Alignment.centerLeft,
+                // ignore: avoid_unnecessary_containers
+                child: Container(
+                  child: const Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Text(
+                      'can you guess it',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ]),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                    textAlign: TextAlign.left,
+                    decoration: InputDecoration(
+                        enabledBorder: uiborder,
+                        focusedBorder: uiborder,
+                        hintText: 'please enter a number'),
+                    keyboardType: TextInputType.number,
+                    controller: guessnumber),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: ElevatedButton(
+                  onPressed: (guess),
+                  child: Text(
+                    "guess",
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+            ]),
+          );
+        },
       ),
     );
   }
@@ -101,30 +106,42 @@ class _MyHomePageState extends State<MyHomePage> {
   void guess() {
     SystemChannels.textInput.invokeMethod('TextInput.hide');
     if (isempty()) {
-      makeToast("this is empty");
+      final text = "this is empty ";
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(text),
+          padding: EdgeInsets.all(30),
+          backgroundColor: Colors.green));
       return;
     }
+
     int guess = int.parse(guessnumber.text);
-    if (guess > 20 || guess > 1) {
-      makeToast("choose number bt 1 and 100 ");
-      guessnumber.clear();
-      return;
-    }
+
     numberoftries++;
     if (numberoftries == numberoftimes && guess != randomnumber) {
-      makeToast(
-          "game over! your number of tries is : $numberoftries my number is :$randomnumber");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            "game over! your number of tries is : $numberoftries my number is :$randomnumber"),
+        padding: EdgeInsets.all(30),
+      ));
       numberoftries = 0;
       randomnumber = ran.nextInt(100) + 1;
       guessnumber.clear();
       return;
     }
     if (guess > randomnumber) {
-      makeToast("your number is lower : $numberoftries");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("your number is higher $numberoftries"),
+        padding: EdgeInsets.all(30),
+      ));
     } else if (guess < randomnumber) {
-      makeToast("your number is hiegher : $numberoftries");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("your number lower : $numberoftries"),
+          padding: EdgeInsets.all(30)));
     } else {
-      makeToast("That's right.you win! number of tries is : $numberoftries");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text("That's right.you win! number of tries is : $numberoftries"),
+          padding: EdgeInsets.all(30)));
       numberoftries = 0;
       randomnumber = ran.nextInt(100) + 1;
     }
@@ -133,13 +150,5 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool isempty() {
     return guessnumber.text.isEmpty;
-  }
-
-  void makeToast(String feedback) {
-    Fluttertoast.showToast(
-        msg: feedback,
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        fontSize: 14);
   }
 }
